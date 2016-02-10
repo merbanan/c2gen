@@ -1,44 +1,45 @@
-# OOK_gen
-OOK modulator for Arduino
+# c2gen
+Simple Silabs programmer for Arduino, load it with the Arduino ide.
+
+Pin 11 is the clock (C2K), pin 10 is the data (C2D).
 
 Usage:
 
-Compile the code with the Arduino IDE. Run the code on the arduino and connect to the serial port (9600 baud).
-Press enter and you should get the following prompt output:
+Use c2tool to program the mcu.
 
-CMD: 
->
+CMD:
 
- 
-You can now access the following serial commands:
-p - load packet, the command accepts hex bytes. (p 1234ABCD for example)
-b - bits in a packet
-r - amout of repeats
-z - length of 0 bit in us
-o - length of 1 bit in us
-i - invert bits if enabled
-m - choose modulation (0 for PWM and 1 for PPM)
-d - Pulse / Pulse distance length in us
-e - Packet pause length in us
-a - preamble length (not implemented yet)
-t - transmit signal
+./c2tool /dev/ttyUSB0 info
+DEVICEID 04, REVID 02
+C8051F30x family: 512 byte pagesize, FPDAT at 0xb4
+PI version 05, derivative 20
 
-As an example:
-r 6
-b 33
-o 698
-z 213
-e 8000
-d 800
-p 83d90bcb
-t
+./c2tool /dev/ttyUSB0 flash test_p0_p1_p2_p3.hex
+section .sec1: lma 0000000000000003, size 75 -> flash 00000003
+section .sec2: lma 0000000000000000, size 3 -> flash 00000000
+section .sec3: lma 000000000000004e, size 12 -> flash 0000004e
 
-will send a turn on signal to a power switch
+./c2tool /dev/ttyUSB0 verify test_p0_p1_p2_p3.hex
+section .sec1: lma 0000000000000003, size 75 -> flash 00000003
+section .sec1: verify ok
+section .sec2: lma 0000000000000000, size 3 -> flash 00000000
+section .sec2: verify ok
+section .sec3: lma 000000000000004e, size 12 -> flash 0000004e
+section .sec3: verify ok
 
-p 83d903c7
-t
 
-will change the packet buffer to a command that will
-turn off the power switch and then send the signal.
 
-# c2gen
+
+./c2tool /dev/ttyUSB0 erase
+./c2tool /dev/ttyUSB0 verify test_p0_p1_p2_p3.hex
+section .sec1: lma 0000000000000003, size 75 -> flash 00000003
+verify failed in 75 byte chunk at 00000003
+section .sec1: verify ok
+section .sec2: lma 0000000000000000, size 3 -> flash 00000000
+verify failed in 3 byte chunk at 00000000
+section .sec2: verify ok
+section .sec3: lma 000000000000004e, size 12 -> flash 0000004e
+verify failed in 12 byte chunk at 0000004e
+section .sec3: verify ok
+command failed: Invalid argument (-22)
+
